@@ -6,6 +6,7 @@
 }:
 let
   cfg = config.programs.direnv;
+  settingsFormat = pkgs.formats.toml { };
   enabledOption =
     x:
     lib.mkEnableOption x
@@ -24,6 +25,21 @@ in
     '';
 
     package = lib.mkPackageOption pkgs "direnv" { };
+
+    settings = lib.mkOption {
+      type = settingsFormat.type;
+      default = { };
+      description = ''
+        `direnv.toml` configuration file. Refer to
+        [the `direnv.toml` man page](https://direnv.net/man/direnv.toml.1.html)
+        for options.
+      '';
+      example = ''
+        {
+          global.hide_env_diff = true;
+        }
+      '';
+    };
 
     enableBashIntegration = enabledOption ''
       Bash integration
@@ -144,6 +160,8 @@ in
 
           unset direnv_config_dir_home
         '';
+
+        "direnv/direnv.toml".source = settingsFormat.generate "direnv.toml" cfg.settings;
       };
     };
   };
